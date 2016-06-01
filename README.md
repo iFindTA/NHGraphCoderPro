@@ -1,6 +1,7 @@
 # NHGraphCoderPro
 ### 本地图形验证码 先上效果（v1.0 持续更新）
 ##### 类似于[极验验证码](http://geetest.com)
+如果对你有帮助，请亮个 star！
 
 ![image](https://raw.githubusercontent.com/iFindTA/screenshots/master/graphiccode.gif)
 
