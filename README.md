@@ -34,3 +34,6 @@
 ```ObjectiveC
 	[coder resetStateForDetect];
 ```
+
+#### Feedback:
+nanhujiaju@gmail.com
