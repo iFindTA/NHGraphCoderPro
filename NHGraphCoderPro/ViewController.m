@@ -24,12 +24,13 @@
     CGSize size = self.view.bounds.size;
     UIImage *img__ = [UIImage imageNamed:@"test_4.jpg"];
     NHGraphCoder *coder = [NHGraphCoder codeWithImage:img__];
-    coder.backgroundColor = [UIColor redColor];
     coder.center = CGPointMake(size.width*0.5, size.height*0.5);
-    [coder handleGraphicCoderVerifyEvent:^(NHGraphCoder * _Nonnull coder, BOOL success) {
+    [coder handleGraphicCoderVerifyEvent:^(NHGraphCoder * _Nonnull cd, BOOL success) {
         NSLog(@"验证结果:%d",success);
     }];
     [self.view addSubview:coder];
+    
+    [coder resetStateForDetect];
     
 }
 
