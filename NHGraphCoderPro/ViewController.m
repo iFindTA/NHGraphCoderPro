@@ -22,7 +22,7 @@
     self.view.backgroundColor = [UIColor cyanColor];
     CGSize size = self.view.bounds.size;
     
-    //native image to detect
+//    //native image to detect
 //    UIImage *img__ = [UIImage imageNamed:@"test_2.jpg"];
 //    NHGraphCoder *coder = [NHGraphCoder codeWithImage:img__];
 //    coder.center = CGPointMake(size.width*0.5, size.height*0.5);

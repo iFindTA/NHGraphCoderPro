@@ -257,6 +257,7 @@ typedef void(^NHSliderEvent)(CGFloat p, BOOL end);
     infoLabel.backgroundColor = [UIColor clearColor];
     infoLabel.font = [UIFont boldSystemFontOfSize:20];
     infoLabel.text = @"拖动滑块完成验证>>>";
+    infoLabel.adjustsFontSizeToFitWidth = true;
     //[self addSubview:infoLabel];
     FBShimmeringView *shimmer = [[FBShimmeringView alloc] initWithFrame:bounds];
     shimmer.shimmering = true;
@@ -1159,7 +1160,7 @@ static NHGraphCoder *instance = nil;
     int m_rectangle_size = m_ball_radius*m_radius_scale;
     int m_rect_radius = m_rectangle_size * 0.5;
     
-    int min = PBTile_SIZE+PBSLIDER_SIZE;
+    int min = PBTile_SIZE;
     int max = PBCONTENT_SIZE-min;
     int m_rect_center_y = [self randomFrom:min to:max];
     int m_rect_center_x = [self randomFrom:min to:max];
