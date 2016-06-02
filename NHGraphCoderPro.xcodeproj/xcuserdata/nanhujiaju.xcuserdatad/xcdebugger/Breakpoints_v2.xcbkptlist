@@ -132,11 +132,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NHGraphCoderPro/Classes/NHGraphCoder.m"
-            timestampString = "486464946.042344"
+            timestampString = "486531025.933497"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "252"
-            endingLineNumber = "252"
+            startingLineNumber = "253"
+            endingLineNumber = "253"
             landmarkName = "-setup"
             landmarkType = "5">
          </BreakpointContent>

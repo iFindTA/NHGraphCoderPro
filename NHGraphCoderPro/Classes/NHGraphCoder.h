@@ -16,11 +16,11 @@ typedef UIImage * _Nonnull (^NHRefreshEvent)();
 
 @interface NHGraphCoder : UIView
 
-//- (id)init NS_UNAVAILABLE;
-//
-//- (id)initWithFrame:(CGRect)frame NS_UNAVAILABLE;
-//
-//- (id)initWithCoder:(NSCoder *)aDecoder NS_UNAVAILABLE;
+- (id)init NS_UNAVAILABLE;
+
+- (id)initWithFrame:(CGRect)frame NS_UNAVAILABLE;
+
+- (id)initWithCoder:(NSCoder *)aDecoder NS_UNAVAILABLE;
 
 /**
  *  @brief generate graph code view

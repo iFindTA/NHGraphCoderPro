@@ -9,6 +9,7 @@
 #import "NHGraphCoder.h"
 #import <objc/runtime.h>
 #import "FBShimmeringView.h"
+#import "JGAFImageCache.h"
 
 #ifndef PBSCREEN_WIDTH
 #define PBSCREEN_WIDTH   ([[UIScreen mainScreen]bounds].size.width)
@@ -566,8 +567,11 @@ typedef void(^NHStateOnceMoreEvent)(void);
 @property (nonatomic, strong) UIImageView *iconView;
 @property (nonatomic, strong) UILabel *titleLabel,*subLabel;
 @property (nonatomic, strong) UIButton *moreBtn;
+@property (nonatomic, strong) UIActivityIndicatorView *indicatorView;
 
 @property (nonatomic, copy) NHStateOnceMoreEvent event;
+
+- (void)loadingState:(BOOL)load;
 
 - (void)handleStateOnceMoreEvent:(NHStateOnceMoreEvent)event;
 
@@ -625,6 +629,26 @@ typedef void(^NHStateOnceMoreEvent)(void);
     [self addSubview:btn];
     self.moreBtn = btn;
     btn.hidden = true;
+    
+    UIActivityIndicatorView *actor = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    actor.hidesWhenStopped = true;
+    [self addSubview:actor];
+    self.indicatorView = actor;
+    CGPoint mCenter = CGPointMake(CGRectGetWidth(self.bounds)*0.5, CGRectGetHeight(self.bounds)*0.5);
+    actor.center = mCenter;
+}
+
+- (void)loadingState:(BOOL)load {
+    self.iconView.hidden = load;
+    self.titleLabel.hidden = load;
+    self.subLabel.hidden = load;
+    self.moreBtn.hidden = load;
+    if (load) {
+        [self.indicatorView startAnimating];
+        self.backgroundColor = [UIColor lightGrayColor];
+    }else{
+        [self.indicatorView stopAnimating];
+    }
 }
 
 - (void)handleStateOnceMoreEvent:(NHStateOnceMoreEvent)event {
@@ -699,40 +723,45 @@ static NHGraphCoder *instance = nil;
     return [[NHGraphCoder alloc] initWithImage:img];
 }
 
-+ (NHGraphCoder *)codeWithURL:(NSString *)url {
-    //TODO:待下版实现
-    return nil;
-}
-
 - (void)handleGraphicCoderVerifyEvent:(NHGraphEvent)event {
     self.event = [event copy];
 }
 
-- (id)init {
-    self = [super init];
-    if (self) {
-    }
-    return self;
-}
-
-- (id)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
-    if (self) {
-    }
-    return self;
-}
+//- (id)init {
+//    self = [super init];
+//    if (self) {
+//    }
+//    return self;
+//}
+//
+//- (id)initWithFrame:(CGRect)frame {
+//    self = [super initWithFrame:frame];
+//    if (self) {
+//        [self __initSetup];
+//    }
+//    return self;
+//}
+//
+//- (id)initWithCoder:(NSCoder *)aDecoder {
+//    self = [super initWithCoder:aDecoder];
+//    if (self) {
+//        [self __initSetup];
+//    }
+//    return self;
+//}
 
 - (id)initWithImage:(UIImage *)img {
+    
+    NHGraphCoder *coder = [NHGraphCoder new];
     CGSize tmpSize = (CGSize){PBCONTENT_SIZE,PBCONTENT_SIZE};
-    self = [self initWithFrame:(CGRect){
+    CGRect bounds = (CGRect){
         .origin = CGPointZero,
         .size = tmpSize
-    }];
-    if (self) {
-        self.img = img;
-        [self __initSetup];
-    }
-    return self;
+    };
+    img = ((img != nil)?img:[UIImage imageNamed:@"coder_default.jpg"]);
+    [coder setFrame:bounds];
+    [coder __initSetupImg:img];
+    return coder;
 }
 
 - (void)setImg:(UIImage *)img {
@@ -741,6 +770,11 @@ static NHGraphCoder *instance = nil;
     }
     _img = img;
     [self updateInnerImg:img];
+}
+
+- (void)__initSetupImg:(UIImage *)img {
+    self.img = img;
+    [self __initSetup];
 }
 
 - (void)updateInnerImg:(UIImage *)img {
@@ -777,7 +811,6 @@ static NHGraphCoder *instance = nil;
     
     [self setNeedsDisplay];
     //
-    UIImage *img = [UIImage imageNamed:@"refresh"];
     CGFloat m_btn_size = PBSLIDER_SIZE * 0.5;
     CGRect bounds = CGRectMake(PBCONTENT_SIZE-m_btn_size, 0, m_btn_size, m_btn_size);
 //    UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -919,6 +952,7 @@ static NHGraphCoder *instance = nil;
     self.endDetect = false;
     self.slider.userInteractionEnabled = !self.endDetect;
     self.mFlag.hidden = self.endDetect;
+    [self.stater loadingState:false];
     self.stater.hidden = !self.endDetect;
     [self setNeedsDisplay];
 }
@@ -1202,6 +1236,44 @@ static NHGraphCoder *instance = nil;
         CGContextSetFillColorWithColor(ctx, maskColor.CGColor);
         CGContextFillPath(ctx);
     }
+}
+
+#pragma mark -- Net Graphic Code --
++ (NHGraphCoder *)codeWithURL:(NSString *)url {
+    return [[NHGraphCoder alloc] initWithURL:url];
+}
+
+- (id)initWithURL:(NSString *)url {
+    NHGraphCoder *coder = [NHGraphCoder new];
+    CGSize tmpSize = (CGSize){PBCONTENT_SIZE,PBCONTENT_SIZE};
+    CGRect bounds = (CGRect){
+        .origin = CGPointZero,
+        .size = tmpSize
+    };
+    [coder setBounds:bounds];
+//    coder.backgroundColor = [UIColor lightGrayColor];
+    if (url == nil) {
+        UIImage *img = [UIImage imageNamed:@"coder_default.jpg"];
+        [coder __initSetupImg:img];
+    }else{
+        coder.endDetect = true;
+        [coder __initSetup];
+        coder.mFlag.hidden = true;
+        coder.slider.userInteractionEnabled = false;
+        coder.stater.hidden = false;
+        [coder.stater loadingState:true];
+        __weak typeof(coder) weakCoder = coder;
+        [[JGAFImageCache sharedInstance] imageForURL:url completion:^(UIImage * _Nullable image) {
+            __strong typeof(weakCoder) strongCoder = weakCoder;
+            if (image == nil) {
+                NSLog(@"下载图片失败!将使用默认图片本地验证");
+                image = [UIImage imageNamed:@"coder_default.jpg"];
+            }
+            [strongCoder setImg:image];
+            [strongCoder resetStateForDetect];
+        }];
+    }
+    return coder;
 }
 
 @end
